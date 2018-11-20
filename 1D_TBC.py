@@ -3,6 +3,7 @@
 
 import math;
 import cmath;
+import numpy
 
 lam = 0.1;
 rho = 0.00054;
@@ -13,8 +14,8 @@ f2Si = 0.141;
 den1 = 2.3; # --------------------------------------SiO2
 M1 = 32.0;
 
-delta1 = den1 * rho / M1 * lam ^ 2 * f1Si;
-beta1 = den1 * rho / M1 * lam ^ 2 * f2Si;
+delta1 = den1 * rho / M1 * lam**2 * f1Si;
+beta1 = den1 * rho / M1 * lam**2 * f2Si;
 
 RMIN = 30; # ------------------------Gap semithickness
 RMAX = 100; # ------------Maximin x
@@ -36,34 +37,37 @@ alp0 = 0;
 k = math.sqrt(1 + alp1) * 2 * math.pi / lam;
 alp1 = -alp1 / (1 + alp1);
 
-MMAX = round(2 * RMAX / h);
+MMAX = math.round(2 * RMAX / h);
 muMAX = math.floor((MMAX + 2) / sprsm);
-MMIN = round((RMAX - RMIN) / h);
-MMIN2 = round((RMAX + RMIN) / h);
-NMAX = round(ZMAX / tau_int);
+MMIN = math.round((RMAX - RMIN) / h);
+MMIN2 = math.round((RMAX + RMIN) / h);
+NMAX = math.round(ZMAX / tau_int);
+nuMAX = math.floor((NMAX + 2) / sprsn);
 
-r = (0:MMAX+1) * h;
-z(1: NMAX)=tau_int * (1:NMAX);
+r = numpy.r_['c',0:MMAX+1] * h;
+z=tau_int * numpy.r_['c',1:NMAX];
 
 # -----------------------------------------------Epsilon(r)
 
 # ------------------------------PLANE WAVE
-u0 = cmath.exp(1j * k * math.sin(angle) * r);
+u0 = numpy.exp(1j * k * math.sin(angle) * r);
 
 # ---------------------------------------GAUSSIAN
-# WAIST = RMIN;
-# u0 = math.exp(-(r - RMAX). ^ 2 / WAIST ^ 2). * (math.sign(2 * RMIN - abs(r - RMAX)) + 1) / 2;
+#WAIST = RMIN;
+#u0 = numpy.multiply(numpy.exp(-(r - RMAX)**2 / WAIST**2), (numpy.sign(2 * RMIN - numpy.abs(r - RMAX)) + 1) / 2);
 # -------------------------------------
-u = u0.';
-
+u = u0.H;
+#----------------Creating main matrices
+utop=numpy.matrix(numpy.zeros([NMAX,1]));
+ubottom=numpy.zeros([NMAX,1]);
 # ----------------------------------------------MARCHING - - old TBC
-utop(1) = u(MMAX + 1);
-ubottom(1) = u(2);
-zplot(1) = 0;
-rplot(1: muMAX)=r(sprsm * (1:muMAX));
-P = ones(1, MMAX + 1);
-Q = ones(1, MMAX + 1);
-c1 = k ^ 2 * h ^ 2;
+utop[0] = u[MMAX];
+ubottom[0] = u[1];
+zplot = numpy.zeros([nuMAX,1]);
+rplot=numpy.r_['c',sprsm * numpy.r_[1:muMAX]];
+P = numpy.ones(1, MMAX + 1);
+Q = numpy.ones(1, MMAX + 1);
+c1 = k**2 * h**2;
 alp0 = c1 * alp0;
 alp1 = c1 * alp1;
 
