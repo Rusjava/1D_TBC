@@ -107,8 +107,8 @@ for cntn in np.r_[0:NMAX-1]:
 # Top and bottom boundary conditions
     gg[cntn + 1] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
 
-    SS = -np.dot(ubottom[0:cntn], beta[0:cntn+]) - ((qq-1)*gg[cntn+1] - np.dot(gg[0:cntn+1], beta[0:cntn+1])) * ubottom[0]
-    SS1 = -np.dot(utop[0:cntn], beta[0:cntn+]) + ((qq+1)*gg[cntn+1] + np.dot(gg[0:cntn+1], beta[0:cntn+1])) * utop[0]
+    SS = -np.dot(ubottom[0:cntn], beta[0:cntn+1]) - ((qq-1)*gg[cntn+1] - np.dot(gg[0:cntn+1], beta[0:cntn+1])) * ubottom[0]
+    SS1 = -np.dot(utop[0:cntn], beta[0:cntn+1]) + ((qq+1)*gg[cntn+1] + np.dot(gg[0:cntn+1], beta[0:cntn+1])) * utop[0]
 
     beta[cntn + 1] = (np.dot(phi[0:cntn+1], beta[0:cntn+1]) + phi[cntn+1])/(cntn+1)
 
