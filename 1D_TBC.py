@@ -143,14 +143,14 @@ rplot = rplot - RMAX
 
 # Preparing the title string
 buf = io.StringIO()
-buf.write("|u|: lambda = %1.2f nm   XMAX =%4.2f mum  XMIN =%4.2f mum  ZMAX =%5.0f mum " % (lam, RMIN * 1e-3, RMAX * 1e-3, ZMAX * 1e-3))
+buf.write("|u|: $\lambda =$ %1.2f nm   $XMAX =$ %4.2f $\mu$m  $XMIN =$ %4.2f $\mu$m  $ZMAX =$ %5.0f $\mu$m " % (lam, RMIN * 1e-3, RMAX * 1e-3, ZMAX * 1e-3))
 
 # Plotting the field amplitude in a color chart
 fig, gplot = plt.subplots()
-gplot.set_title(buf)
+gplot.set_title(buf.getvalue())
 X, Y = np.meshgrid(zplot * 1e-6, rplot * 1e-3)
 cset = gplot.pcolormesh(X, Y, np.log10(np.abs(uplot)**2), cmap='jet')
 fig.colorbar(cset)
 gplot.set_xlabel('z, mm')
-gplot.set_ylabel('x, \mum')
+gplot.set_ylabel('x, $\mu$m')
 plt.show()
