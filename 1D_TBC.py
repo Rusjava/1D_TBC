@@ -6,27 +6,27 @@ import numpy as np
 import io
 import matplotlib.pyplot as plt
 
-lam = 0.1
+lam = 0.1  # -----------------Wavelength, nm
 rho = 0.00054
 
 f1Si = 14.142
 f2Si = 0.141
 
-den1 = 2.3 # --------------------------------------SiO2
+den1 = 2.3  # --------------------------------------SiO2
 M1 = 32.0
 
 delta1 = den1 * rho / M1 * lam**2 * f1Si
 beta1 = den1 * rho / M1 * lam**2 * f2Si
 
-RMIN = 30 # ------------------------Gap semi-thickness
-RMAX = 100 # ------------Maximum x
-angle = 0 # ------------------------Angle in mrad
-ZMAX = 1e6 # ----------------Waveguide length
+RMIN = 30  # ------------------------Gap semi-thickness
+RMAX = 100  # ------------Maximum x
+angle = 0  # ------------------------Incidence angle, mrad
+ZMAX = 1e6  # ----------------Waveguide length, nm
 
-h = 0.5 # ----------------------------- Transversal step
-tau_int = 1e3 # ----------------------------- Longitudinal step
-sprsn = 1 # ----------------------------ARRAY thinning(long range)
-sprsm = 1 # ----------------------------ARRAY thinning
+h = 0.5  # ----------------------------- Transversal step
+tau_int = 1e3  # ----------------------------- Longitudinal step
+sprsn = 1  # ----------------------------ARRAY thinning(long range)
+sprsm = 1  # ----------------------------ARRAY thinning
 alp1 = -delta1 + 1j * beta1
 alp0 = 0
 
@@ -42,7 +42,10 @@ muMAX = math.floor((MMAX + 2) / sprsm)
 MMIN = int(round((RMAX - RMIN) / h))
 MMIN2 = int(round((RMAX + RMIN) / h))
 NMAX = int(round(ZMAX / tau_int))
-nuMAX = math.floor((NMAX + 2) / sprsn)
+if sprsn != 1:
+    nuMAX = math.floor(NMAX / sprsn) + 1
+else:
+    nuMAX = NMAX
 
 r = np.r_[0:MMAX+2] * h
 z = tau_int * np.r_[0:NMAX]
@@ -53,11 +56,13 @@ z = tau_int * np.r_[0:NMAX]
 u0 = np.exp(1j * k * math.sin(angle) * r)
 
 # ---------------------------------------GAUSSIAN
-#WAIST = RMIN
-#u0 =numpy.exp(-(r - RMAX)**2 / WAIST**2) * (numpy.sign(2 * RMIN - numpy.abs(r - RMAX)) + 1) / 2
+# WAIST = RMIN
+# u0 =numpy.exp(-(r - RMAX)**2 / WAIST**2) * (numpy.sign(2 * RMIN - numpy.abs(r - RMAX)) + 1) / 2
+
 # -------------------------------------
-u = u0
-#----------------Creating main matrices
+u = np.copy(u0)
+
+# ----------------Creating main matrices
 utop = np.zeros(NMAX,dtype=complex)
 ubottom = np.zeros(NMAX,dtype=complex)
 alp = np.zeros(MMAX+2,dtype=complex)
@@ -75,7 +80,10 @@ c1 = (k*h)**2
 alp0 *= c1
 alp1 *= c1
 
-nuu = 0
+# Initializing sparse field amplitude array
+nuu = 1
+zplot[0] = z[0]
+uplot[0:muMAX, 0] = np.exp(1j * k * z[0]) * u[sprsm * np.r_[0:muMAX]]
 
 c0 = 4. * 1j * k * h**2 / tau_int
 ci = 2. - c0
@@ -99,10 +107,10 @@ for cntn in np.r_[0:NMAX-1]:
 # Top and bottom boundary conditions
     gg[cntn + 1] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
 
-    SS = -np.dot(ubottom[0:cntn], beta[0:cntn]) - ((qq-1)*gg[cntn+1] - np.dot(gg[0:cntn], beta[0:cntn])) * ubottom[0]
-    SS1 = -np.dot(utop[0:cntn], beta[0:cntn]) + ((qq+1)*gg[cntn+1] + np.dot(gg[0:cntn], beta[0:cntn])) * utop[0]
+    SS = -np.dot(ubottom[0:cntn], beta[0:cntn+]) - ((qq-1)*gg[cntn+1] - np.dot(gg[0:cntn+1], beta[0:cntn+1])) * ubottom[0]
+    SS1 = -np.dot(utop[0:cntn], beta[0:cntn+]) + ((qq+1)*gg[cntn+1] + np.dot(gg[0:cntn+1], beta[0:cntn+1])) * utop[0]
 
-    beta[cntn + 1] = (np.dot(phi[0:cntn], beta[0:cntn]) + phi[cntn+1])/(cntn+1.)
+    beta[cntn + 1] = (np.dot(phi[0:cntn+1], beta[0:cntn+1]) + phi[cntn+1])/(cntn+1)
 
 # Initial condition at the bottom
     c = ci - alp[1]
@@ -137,7 +145,9 @@ for cntn in np.r_[0:NMAX-1]:
         zplot[nuu] = z[cntn]
         uplot[0:muMAX, nuu] = np.exp(1j * k * z[cntn]) * u[sprsm * np.r_[0:muMAX]]
         nuu = nuu + 1
+    # Printing the execution progress
     progress = int(round(1.*cntn / NMAX * 100))
+    print(str(progress) + " %")
 
 rplot = rplot - RMAX
 
