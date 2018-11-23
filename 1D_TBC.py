@@ -53,11 +53,11 @@ z = tau_int * np.r_[0:NMAX]
 # -----------------------------------------------Epsilon(r)
 
 # ------------------------------PLANE WAVE
-# u0 = np.exp(1j * k * math.sin(angle) * r)
+u0 = np.exp(1j * k * math.sin(angle) * r)
 
 # ---------------------------------------GAUSSIAN
-WAIST = RMIN
-u0 = np.exp(-(r - RMAX)**2 / WAIST**2 + 1j * k * math.sin(angle) * r)
+# WAIST = RMIN
+# u0 = np.exp(-(r - RMAX)**2 / WAIST**2 + 1j * k * math.sin(angle) * r)
 
 # -------------------------------------
 u = np.copy(u0)
@@ -93,24 +93,24 @@ cci = 2. + c0
 beta0 = -1j * 2. * cmath.sqrt(c0 - c0**2 / 4.)
 phi = -1. / 2. - (-1.)**np.r_[0:NMAX+1] + ((-1.)**np.r_[0:NMAX+1]) / 2. * ((1. + c0 / 4.) / (1. - c0 / 4.))**np.r_[1:NMAX+2]
 beta[0] = phi[0]
-gg[0] = 1.
+gg[0] = 1
 qq = 1j * 2. * cmath.sin(k * math.sin(angle) * h) / beta0
 yy = cmath.cos(k * math.sin(angle) * h)
 mm = cmath.exp(1j * k * math.sin(angle) * h)
 
-for cntn in np.r_[0:NMAX-1]:
+for cntn in np.r_[1:NMAX]:
 
     alp[MMIN2 + 1:MMAX + 2] = alp0
     alp[MMIN:MMIN2 + 1] = alp1
     alp[0:MMIN] = alp0
 
 # Top and bottom boundary conditions
-    gg[cntn + 1] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
+    gg[cntn] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
 
-    SS = -np.dot(ubottom[0:cntn+1], beta[0:cntn+1]) - ((qq-1)*gg[cntn+1] - np.dot(gg[0:cntn+1], beta[0:cntn+1])) * ubottom[0]
-    SS1 = -np.dot(utop[0:cntn+1], beta[0:cntn+1]) + ((qq+1)*gg[cntn+1] + np.dot(gg[0:cntn+1], beta[0:cntn+1])) * utop[0]
+    SS = -np.dot(ubottom[0:cntn], beta[0:cntn]) - ((qq-1)*gg[cntn] - np.dot(gg[0:cntn], beta[0:cntn])) * ubottom[0]
+    SS1 = -np.dot(utop[0:cntn], beta[0:cntn]) + ((qq+1)*gg[cntn] + np.dot(gg[0:cntn], beta[0:cntn])) * utop[0]
 
-    beta[cntn + 1] = (np.dot(phi[0:cntn+1], beta[0:cntn+1]) + phi[cntn+1])/(cntn+1)
+    beta[cntn] = (np.dot(phi[0:cntn], beta[0:cntn]) + phi[cntn])/(cntn+1)
 
 # Initial condition at the bottom
     c = ci - alp[1]
@@ -121,13 +121,13 @@ for cntn in np.r_[0:NMAX-1]:
     Q[0] = -(d - beta0 * SS) / 2.
 
 # Preparation for marching
-    for cntm in np.r_[0:MMAX]:
-        c = ci - alp[cntm + 1]
-        cconj = cci - alp[cntm + 1]
-        d = u[cntm + 2] - cconj * u[cntm + 1] + u[cntm]
+    for cntm in np.r_[1:MMAX+1]:
+        c = ci - alp[cntm]
+        cconj = cci - alp[cntm]
+        d = u[cntm + 1] - cconj * u[cntm] + u[cntm-1]
 
-        P[cntm + 1] = -1. / (c + P[cntm])
-        Q[cntm + 1] = -(Q[cntm] + d) * P[cntm + 1]
+        P[cntm] = -1. / (c + P[cntm-1])
+        Q[cntm] = -(Q[cntm-1] + d) * P[cntm]
 
 # Initial condition at the top
     u[MMAX + 1] = (beta0 * SS1 + Q[MMAX-1] - (P[MMAX-1] + beta0) * Q[MMAX]) / (1. - (beta0 + P[MMAX-1]) * P[MMAX])
@@ -137,16 +137,16 @@ for cntn in np.r_[0:NMAX-1]:
         u[cntm-1] = Q[cntm-1] - P[cntm-1] * u[cntm]
 
 # Preserving boundary values
-    utop[cntn + 1] = u[MMAX]
-    ubottom[cntn + 1] = u[1]
+    utop[cntn] = u[MMAX]
+    ubottom[cntn] = u[1]
 
 # Sparsing
-    if cntn / sprsn - math.floor(cntn / sprsn) == 0:
-        zplot[nuu] = z[cntn]
-        uplot[0:muMAX, nuu] = np.exp(1j * k * z[cntn]) * u[sprsm * np.r_[0:muMAX]]
+    if (cntn-1) / sprsn - math.floor((cntn-1) / sprsn) == 0:
+        zplot[nuu] = z[cntn-1]
+        uplot[0:muMAX, nuu] = np.exp(1j * k * z[cntn-1]) * u[sprsm * np.r_[0:muMAX]]
         nuu = nuu + 1
     # Printing the execution progress
-    progress = int(round(1.*cntn / NMAX * 100))
+    progress = int(round(1.*(cntn-1) / NMAX * 100))
     print(str(progress) + " %")
 
 rplot = rplot - RMAX
