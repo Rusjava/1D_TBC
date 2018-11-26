@@ -6,6 +6,8 @@ import numpy as np
 import io
 import matplotlib.pyplot as plt
 
+imagefilename = "E:\\Python\\Results\\1D_stable_colorplot.png"  # ------------ The name of the image file to save results to
+
 lam = 0.1  # -----------------Wavelength, nm
 rho = 0.00054
 
@@ -163,4 +165,9 @@ cset = gplot.pcolormesh(X, Y, np.log10(np.abs(uplot)**2), cmap='jet')
 fig.colorbar(cset)
 gplot.set_xlabel('z, mm')
 gplot.set_ylabel('x, $\mu$m')
+
+# Saving color plot as a raster image
+fig.savefig(imagefilename, dpi=600)
+
+# Showing the figure
 plt.show()
