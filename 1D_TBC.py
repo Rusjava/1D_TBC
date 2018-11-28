@@ -11,8 +11,8 @@ imagefilename = "E:\\Python\\Results\\1D_stable_colorplot.png"  # ------------ T
 lam = 0.1  # -----------------Wavelength, nm
 rho = 0.00054
 
-f1Si = 14.142
-f2Si = 0.141
+f1Si = 0 #14.142
+f2Si = 0 #0.141
 
 den1 = 2.3  # --------------------------------------SiO2
 M1 = 32.0
