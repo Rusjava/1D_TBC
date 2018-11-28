@@ -5,14 +5,18 @@ import cmath
 import numpy as np
 import io
 import matplotlib.pyplot as plt
+import os, sys
 
-imagefilename = "E:\\Python\\Results\\1D_stable_colorplot.png"  # ------------ The name of the image file to save results to
+#  Result file path formation
+fpath = os.path.dirname(sys.argv[0])
+drv = os.path.splitdrive(fpath)
+imagefilename = drv[0] + "\\Python\\Results\\1D_stable_colorplot.png"  # ------------ The name of the image file to save results to
 
 lam = 0.1  # -----------------Wavelength, nm
 rho = 0.00054
 
-f1Si = 0 #14.142
-f2Si = 0 #0.141
+f1Si = 14.142
+f2Si = 0.141
 
 den1 = 2.3  # --------------------------------------SiO2
 M1 = 32.0
@@ -22,7 +26,7 @@ beta1 = den1 * rho / M1 * lam**2 * f2Si
 
 RMIN = 30  # ------------------------Gap semi-thickness
 RMAX = 100  # ------------Maximum x
-angle = 0  # ------------------------Incidence angle, mrad
+angle = 0.001  # ------------------------Incidence angle, mrad
 ZMAX = 1e6  # ----------------Waveguide length, nm
 
 h = 0.5  # ----------------------------- Transversal step
@@ -159,7 +163,7 @@ buf.write("|u|: $\lambda =$ %1.2f nm   $XMAX =$ %4.2f $\mu$m  $XMIN =$ %4.2f $\m
 
 # Plotting the field amplitude in a color chart
 fig, gplot = plt.subplots()
-gplot.set_title(buf.getvalue())
+gplot.set_title(buf.getvalue(), y=1.04)
 X, Y = np.meshgrid(zplot * 1e-6, rplot * 1e-3)
 cset = gplot.pcolormesh(X, Y, np.log10(np.abs(uplot)**2), cmap='jet')
 fig.colorbar(cset)
