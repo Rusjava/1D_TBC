@@ -112,11 +112,11 @@ for cntn in np.r_[1:NMAX]:
 
 # Top and bottom boundary conditions
     gg[cntn] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
+    betaflipped = beta[cntn-1:-1]
+    SS = -np.dot(ubottom[0:cntn], betaflipped) - ((qq-1)*gg[cntn] - np.dot(gg[0:cntn], betaflipped)) * ubottom[0]
+    SS1 = -np.dot(utop[0:cntn], betaflipped) + ((qq+1)*gg[cntn] + np.dot(gg[0:cntn], betaflipped)) * utop[0]
 
-    SS = -np.dot(ubottom[0:cntn], beta[0:cntn]) - ((qq-1)*gg[cntn] - np.dot(gg[0:cntn], beta[0:cntn])) * ubottom[0]
-    SS1 = -np.dot(utop[0:cntn], beta[0:cntn]) + ((qq+1)*gg[cntn] + np.dot(gg[0:cntn], beta[0:cntn])) * utop[0]
-
-    beta[cntn] = (np.dot(phi[0:cntn], beta[0:cntn]) + phi[cntn])/(cntn+1)
+    beta[cntn] = (np.dot(phi[0:cntn], betaflipped) + phi[cntn])/(cntn+1)
 
 # Initial condition at the bottom
     c = ci - alp[1]
