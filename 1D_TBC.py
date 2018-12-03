@@ -26,7 +26,7 @@ beta1 = den1 * rho / M1 * lam**2 * f2Si
 
 RMIN = 30  # ------------------------Gap semi-thickness
 RMAX = 100  # ------------Maximum x
-angle = 0.001  # ------------------------Incidence angle, mrad
+angle = 0  # ------------------------Incidence angle, mrad
 ZMAX = 1e6  # ----------------Waveguide length, nm
 
 h = 0.5  # ----------------------------- Transversal step
@@ -112,7 +112,7 @@ for cntn in np.r_[1:NMAX]:
 
 # Top and bottom boundary conditions
     gg[cntn] = ((c0 + 2. - 2. * yy) / (c0 - 2. + 2. * yy))**cntn
-    betaflipped = beta[cntn-1:-1]
+    betaflipped = beta[cntn - 1::-1]
     SS = -np.dot(ubottom[0:cntn], betaflipped) - ((qq-1)*gg[cntn] - np.dot(gg[0:cntn], betaflipped)) * ubottom[0]
     SS1 = -np.dot(utop[0:cntn], betaflipped) + ((qq+1)*gg[cntn] + np.dot(gg[0:cntn], betaflipped)) * utop[0]
 
